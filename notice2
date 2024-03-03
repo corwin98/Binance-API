@@ -1,0 +1,40 @@
+import requests
+import hashlib
+import hmac
+import time
+
+api_key = 'YOUR_API_KEY'
+api_secret = 'YOUR_SECRET_KEY'
+
+# Function to generate HMAC-SHA256 signature
+def generate_signature(params):
+    query_string = '&'.join(["{}={}".format(k, v) for k, v in params.items()])
+    signature = hmac.new(api_secret.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256).hexdigest()
+    return signature
+
+# Function to make a request to the Binance API
+def make_request(endpoint, params):
+    url = f'https://api.binance.com/api/v3/{endpoint}'
+    headers = {'X-MBX-APIKEY': api_key}
+
+    # Add timestamp and signature to the parameters
+    params['timestamp'] = int(time.time() * 1000)
+    params['signature'] = generate_signature(params)
+
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
+
+# Example request to get account balance
+def get_account_balance():
+    endpoint = 'account'
+    params = {'recvWindow': 5000}  # optional parameter, you can remove it if not needed
+    response = make_request(endpoint, params)
+    
+    if 'balances' in response:
+        for balance in response['balances']:
+            print(f"Asset: {balance['asset']}, Free: {balance['free']}, Locked: {balance['locked']}")
+    else:
+        print("Error fetching balance")
+
+# Call the function to get the account balance
+get_account_balance()
