@@ -18,3 +18,4 @@ for symbol in crypto_symbols:
         print(f"Current price of {symbol}: ${price}")
     else:
         print(f"Failed to retrieve price for {symbol}")
+meow
